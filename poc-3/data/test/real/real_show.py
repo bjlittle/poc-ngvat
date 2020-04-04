@@ -10,13 +10,10 @@ def draw():
     global ugrid_sst
     global p
 
-    #if actor is not None:
-    #    p.remove_actor(actor)
     if actor is None:
-        actor = p.add_text(f"C48 SST global time-series")
+        actor = p.add_text(f"C48 time-series", font_size=10)
+
     sst.cell_arrays["faces"] = ugrid_sst[t].get_array("faces")
-    #print(f"hello {t}")
-    
     t = 0 if t == 11 else t + 1
 
 
@@ -28,22 +25,24 @@ actor = None
 
 cmap = "coolwarm"  # colorcet (perceptually accurate) color maps
 
-#p = pv.Plotter(shape=(2, 6))
-#R, C = 2, 6
-#for r in range(R):
-#    for c in range(C):
-#        p.subplot(r, c)
-#        t = (r*C) + c
-#        p.add_text(f"C48 SST t{t}")
-#        sst = ugrid_sst[t]
-#        p.add_mesh(sst, scalars=sst.get_array("faces"), show_edges=True, cmap=cmap)
-#p.show_axes_all()
-#p.link_views()
-#cpos = np.array([(0.0, -5.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 1.0)])
-#p.show()
+sargs = dict(
+#             interactive=True,
+#             title_font_size=8,
+#             label_font_size=6,
+             shadow=True,
+             n_labels=5,
+             italic=False,
+             fmt="%.1f",
+             font_family="arial",
+             nan_annotation=True,
+             vertical=True,
+)
 
 p = pv.BackgroundPlotter()
-p.add_mesh(sst, scalars="faces", show_edges=True, cmap=cmap)
+p.add_mesh(sst, scalars="faces", show_edges=True, cmap=cmap, scalar_bar_args=sargs)
+#p.add_scalar_bar("hello", **sargs, cmap=cmap)
 p.show_axes()
 p.show_grid()
+p.scalar_bar.SetTitle("sst / K")
+#p.add_scalar_bar(**sargs)
 p.add_callback(draw, interval=100)
