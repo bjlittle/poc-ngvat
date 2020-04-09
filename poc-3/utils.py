@@ -1,7 +1,6 @@
+import netCDF4 as nc
 import numpy as np
 
-
-import numpy as np
 
 def earth_cube_nodes(C, r=None, debug=False):
     if r is None:
@@ -216,6 +215,72 @@ def earth_cube_nodes(C, r=None, debug=False):
     xs, ys, zs = np.concatenate(xs), np.concatenate(ys), np.concatenate(zs)
 
     return np.vstack((xs, ys, zs)).T
+
+
+def load_nodes(fname, node_face, node_x, node_y, radius, start_index=True):
+    ds = nc.Dataset(fname)
+    node_face = ds.variables[node_face][:].data
+    node_x = ds.variables[node_x][:].data
+    node_y = ds.variables[node_y][:].data
+
+    # account for start_index = 1
+    if start_index:
+        node_x = np.concatenate(([0], node_x))
+        node_y = np.concatenate(([0], node_y))
+
+    # convert lat/lon to cartesian coordinates
+    node_x = np.radians(node_x)
+    node_y = np.radians(90.0 - node_y)
+
+    x = radius * np.sin(node_y) * np.cos(node_x)
+    y = radius * np.sin(node_y) * np.sin(node_x)
+    z = radius * np.cos(node_y)
+
+    # construct the vertex count + offsets for each face
+    N_nodes = 4
+    N_faces = node_face.shape[0]
+    faces = np.hstack((np.broadcast_to(np.array([N_nodes], np.int8), (N_faces, 1)),
+                      node_face))
+
+    return (ds, (x, y, z), faces)
+
+
+def load(fname, node_face, node_x, node_y, radius, start_index=True, cube=None):
+    ds = nc.Dataset(fname)
+    node_face = ds.variables[node_face][:].data
+    node_x = ds.variables[node_x][:].data
+    node_y = ds.variables[node_y][:].data
+
+    if cube is not None:
+        cube_x, cube_y, cube_z = cube[:, 0], cube[:, 1], cube[:, 2]
+
+    # account for start_index = 1
+    if start_index:
+        node_x = np.concatenate(([0], node_x))
+        node_y = np.concatenate(([0], node_y))
+
+        if cube is not None:
+            cube_x = np.concatenate(([0], cube_x))
+            cube_y = np.concatenate(([0], cube_y))
+            cube_z = np.concatenate(([0], cube_z))
+
+    if cube is not None:
+        x = radius * cube_x[node_face]
+        y = radius * cube_y[node_face]
+        z = radius * cube_z[node_face]
+    else:
+        # convert lat/lon to cartesian coordinates
+        node_face_x = node_x[node_face]
+        node_face_y = 90.0 - node_y[node_face]
+
+        node_face_x_rad = np.radians(node_face_x)
+        node_face_y_rad = np.radians(node_face_y)
+
+        x = radius * np.sin(node_face_y_rad) * np.cos(node_face_x_rad)
+        y = radius * np.sin(node_face_y_rad) * np.sin(node_face_x_rad)
+        z = radius * np.cos(node_face_y_rad)
+
+    return (ds, (x, y, z))
 
 
 def netcdf_copy(dsin, fnamein, datain):
