@@ -217,16 +217,21 @@ def earth_cube_nodes(C, r=None, debug=False):
     return np.vstack((xs, ys, zs)).T
 
 
-def load_nodes(fname, node_face, node_x, node_y, radius, start_index=True):
-    ds = nc.Dataset(fname)
-    node_face = ds.variables[node_face][:].data
-    node_x = ds.variables[node_x][:].data
-    node_y = ds.variables[node_y][:].data
+def load_nodes(fname, node_face, node_x, node_y, radius, start_index=True, data=None):
+    with nc.Dataset(fname) as ds:
+        node_face = ds.variables[node_face][:].data
+        node_x = ds.variables[node_x][:].data
+        node_y = ds.variables[node_y][:].data
+        
+        if data is not None:
+            data = ds.variables[data][:]
+            mask = data.mask
+            data = data.data
+            data[mask] = np.nan
 
     # account for start_index = 1
     if start_index:
-        node_x = np.concatenate(([0], node_x))
-        node_y = np.concatenate(([0], node_y))
+        node_face = node_face - 1
 
     # convert lat/lon to cartesian coordinates
     node_x = np.radians(node_x)
@@ -242,7 +247,12 @@ def load_nodes(fname, node_face, node_x, node_y, radius, start_index=True):
     faces = np.hstack((np.broadcast_to(np.array([N_nodes], np.int8), (N_faces, 1)),
                       node_face))
 
-    return (ds, (x, y, z), faces)
+    if data is not None:
+        result = (x, y, z), faces, data
+    else:
+        result = (x, y, z), faces
+    
+    return result
 
 
 def load(fname, node_face, node_x, node_y, radius, start_index=True, cube=None):
