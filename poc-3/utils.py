@@ -217,7 +217,7 @@ def earth_cube_nodes(C, r=None, debug=False):
     return np.vstack((xs, ys, zs)).T
 
 
-def load_nodes(fname, node_face, node_x, node_y, radius, start_index=True, data=None):
+def load_nodes(fname, node_face, node_x, node_y, radius, start_index=True, data=None, xy=None):
     with nc.Dataset(fname) as ds:
         node_face = ds.variables[node_face][:].data
         node_x = ds.variables[node_x][:].data
@@ -234,12 +234,12 @@ def load_nodes(fname, node_face, node_x, node_y, radius, start_index=True, data=
         node_face = node_face - 1
 
     # convert lat/lon to cartesian coordinates
-    node_x = np.radians(node_x)
-    node_y = np.radians(90.0 - node_y)
+    node_x_rad = np.radians(node_x)
+    node_y_rad = np.radians(90.0 - node_y)
 
-    x = radius * np.sin(node_y) * np.cos(node_x)
-    y = radius * np.sin(node_y) * np.sin(node_x)
-    z = radius * np.cos(node_y)
+    x = radius * np.sin(node_y_rad) * np.cos(node_x_rad)
+    y = radius * np.sin(node_y_rad) * np.sin(node_x_rad)
+    z = radius * np.cos(node_y_rad)
 
     # construct the vertex count + offsets for each face
     N_nodes = 4
@@ -251,7 +251,10 @@ def load_nodes(fname, node_face, node_x, node_y, radius, start_index=True, data=
         result = (x, y, z), faces, data
     else:
         result = (x, y, z), faces
-    
+
+    if xy:
+        result = result + (node_x, node_y)
+
     return result
 
 
