@@ -109,7 +109,7 @@ add = True
 
 p = pv.BackgroundPlotter()
 p.add_mesh(mesh, scalars=None, opacity=0, show_scalar_bar=False)
-p.add_text("C12 Cell Order", font_size=13, shadow=True, font="courier")
+p.add_text("C12 Panel Cell Order", font_size=13, shadow=True, font="courier")
 add_text(p, depth=0.1)
 p.add_bounding_box()
 
