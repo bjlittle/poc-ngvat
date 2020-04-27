@@ -2,6 +2,23 @@ import numpy as np
 import pyvista as pv
 
 
+def button_stop(status):
+    global stop
+    global run
+    global rep_run
+    
+    stop = status
+    if not stop:
+        if not run:
+            rep_run.SetState(1)
+            run = True
+
+
+def button_run(status):
+    global run
+    run = status
+
+
 def draw():
     global NP
     global N_panel
@@ -11,20 +28,27 @@ def draw():
     global actors
     global clim
     global add
+    global stop
+    global run
+    global rep_run
 
-    if add:
-        idx = [np*N_panel+i for np in range(NP)]
-        cells = mesh.extract_cells(idx)
-        actors.append(p.add_mesh(cells, scalars="faces", show_edges=True,
-                                 cmap="coolwarm", clim=clim, show_scalar_bar=False))
-    else:
-        troupe = actors.pop(0)
-        p.remove_actor(troupe)
+    if run:
+        if add:
+            idx = [np*N_panel+i for np in range(NP)]
+            cells = mesh.extract_cells(idx)
+            actors.append(p.add_mesh(cells, scalars="faces", show_edges=True,
+                                     cmap="coolwarm", clim=clim, show_scalar_bar=False))
+        else:
+            actor = actors.pop(0)
+            p.remove_actor(actor)
         
-    i += 1
-    if i == N_panel:
-        add = not add
-        i = 0
+        i += 1
+        if i == N_panel:
+            add = not add
+            i = 0
+            if stop:
+                rep_run.SetState(0)
+                run = False
 
 
 def add_text(p, depth=0.1):
@@ -103,6 +127,8 @@ N = mesh.n_cells
 N_panel = N / NP
 i = 0
 actors = []
+run = False
+stop = False
 
 clim=(np.min(mesh["faces"]), np.max(mesh["faces"]))
 add = True
@@ -112,6 +138,10 @@ p.add_mesh(mesh, scalars=None, opacity=0, show_scalar_bar=False)
 p.add_text("C12 Panel Cell Order", font_size=13, shadow=True, font="courier")
 add_text(p, depth=0.1)
 p.add_bounding_box()
+actor_run = p.add_checkbox_button_widget(button_run, value=False, size=20, border_size=2, color_on="green")
+p.add_checkbox_button_widget(button_stop, value=False, size=20, border_size=2, color_on="green", position=(10, 33))
+
+rep_run = actor_run.GetRepresentation()
 
 p.show_axes()
 p.add_callback(draw, interval=50)
