@@ -1,5 +1,37 @@
+import cartopy
+import cartopy.io.shapereader as shp
 import netCDF4 as nc
 import numpy as np
+import pyvista as pv
+
+
+#
+# 10m  = 4,133 geometries
+# 50m  = 1,429 geometries
+# 110m = 134 geometries
+#
+def coastline(resolution="110m", radius=1.0):
+    fname = shp.natural_earth(resolution=resolution, category="physical", name="coastline")
+    reader = shp.Reader(fname)
+
+    dtype = np.float32
+    blocks = pv.MultiBlock()
+
+    for i, record in enumerate(reader.records()):
+        for geometry in record.geometry:
+            xy = np.array(geometry.coords[:], dtype=dtype)
+            xr = np.radians(xy[:, 0]).reshape(-1, 1)
+            yr = np.radians(90 - xy[:, 1]).reshape(-1, 1)
+
+            x = radius * np.sin(yr) * np.cos(xr)
+            y = radius * np.sin(yr) * np.sin(xr)
+            z = radius * np.cos(yr)
+
+            xyz = np.hstack((x, y, z))
+            poly = pv.lines_from_points(xyz, close=False)
+            blocks.append(poly)
+
+    return blocks
 
 
 def earth_cube_nodes(C, r=None, debug=False):
