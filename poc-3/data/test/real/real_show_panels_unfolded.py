@@ -55,13 +55,13 @@ cmap = "coolwarm"  # colorcet (perceptually accurate) color maps
 bp = pv.BackgroundPlotter()
 show_edges = True
 
-bp.add_text("C48 unfolded cube-sphere time-series", font_size=10, shadow=True)
+bp.add_text("C48 SST time-series (unfolded)", font_size=10, shadow=True, font="courier")
 bp.add_mesh(sst[0], scalars="faces", show_edges=show_edges, cmap=cmap, show_scalar_bar=False)
 bp.add_mesh(sst[1], scalars="faces", show_edges=show_edges, cmap=cmap, show_scalar_bar=False)
 bp.add_mesh(sst[2], scalars="faces", show_edges=show_edges, cmap=cmap, show_scalar_bar=False)
 bp.add_mesh(sst[3], scalars="faces", show_edges=show_edges, cmap=cmap, show_scalar_bar=False)
 bp.add_mesh(sst[4], scalars="faces", show_edges=show_edges, cmap=cmap, show_scalar_bar=False)
-bp.add_mesh(sst[5], scalars="faces", show_edges=show_edges, cmap=cmap, show_scalar_bar=True, scalar_bar_args=dict(vertical=True))
+bp.add_mesh(sst[5], scalars="faces", show_edges=show_edges, cmap=cmap, show_scalar_bar=True)
 bp.scalar_bar.SetTitle("SST / K")
 
 bp.show_axes_all()
