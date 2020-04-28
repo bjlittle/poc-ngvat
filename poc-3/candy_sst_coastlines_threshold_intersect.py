@@ -34,5 +34,5 @@ for block in blocks:
 p.add_mesh(tmesh, scalars="faces", cmap="coolwarm", show_edges=True, show_scalar_bar=True)
 
 p.scalar_bar.SetTitle("SST / K")
-p.add_text(f"C48 SST [{lo}, {hi}] (overlap, {resolution} coastlines)", font_size=15, shadow=True, font="courier")
+p.add_text(f"C48 SST [{lo}, {hi}] (intersect, {resolution} coastlines)", font_size=10, shadow=True, font="courier")
 p.show()
