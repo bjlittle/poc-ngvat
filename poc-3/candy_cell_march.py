@@ -19,7 +19,7 @@ def button_run(status):
     run = status
 
 
-def draw():
+def event_draw():
     global NP
     global N_panel
     global i
@@ -144,5 +144,5 @@ p.add_checkbox_button_widget(button_stop, value=False, size=20, border_size=2, c
 rep_run = actor_run.GetRepresentation()
 
 p.show_axes()
-p.add_callback(draw, interval=50)
+p.add_callback(event_draw, interval=10)
 p.camera_position = "yz"
