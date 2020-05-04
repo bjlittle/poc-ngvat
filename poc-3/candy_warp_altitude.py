@@ -8,7 +8,6 @@ def callback_slider(value):
     global display
     
     factor = value * 1e-6
-    print(factor)
     result = mesh.warp_by_scalar(factor=factor)
     display.points = result.points
 
@@ -26,5 +25,6 @@ p.add_slider_widget(callback_slider, rng=(0, 50), value=0, title="Warp Factor")
 p.add_text("Altitude Warping", font_size=13, shadow=True, font="courier")
 
 p.add_axes()
+p.camera = "xz"
 p.show()
 
