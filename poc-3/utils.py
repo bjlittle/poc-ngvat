@@ -10,7 +10,7 @@ import pyvista as pv
 # 50m  = 1,429 geometries
 # 110m = 134 geometries
 #
-def coastline(resolution="110m", radius=1.0):
+def coastline(resolution="110m", radius=1.0, geocentric=True):
     fname = shp.natural_earth(resolution=resolution, category="physical", name="coastline")
     reader = shp.Reader(fname)
 
@@ -20,12 +20,19 @@ def coastline(resolution="110m", radius=1.0):
     for i, record in enumerate(reader.records()):
         for geometry in record.geometry:
             xy = np.array(geometry.coords[:], dtype=dtype)
-            xr = np.radians(xy[:, 0]).reshape(-1, 1)
-            yr = np.radians(90 - xy[:, 1]).reshape(-1, 1)
 
-            x = radius * np.sin(yr) * np.cos(xr)
-            y = radius * np.sin(yr) * np.sin(xr)
-            z = radius * np.cos(yr)
+            if geocentric:
+                xr = np.radians(xy[:, 0]).reshape(-1, 1)
+                yr = np.radians(90 - xy[:, 1]).reshape(-1, 1)
+
+                x = radius * np.sin(yr) * np.cos(xr)
+                y = radius * np.sin(yr) * np.sin(xr)
+                z = radius * np.cos(yr)
+            else:
+                # otherwise, geodetic
+                x = xy[:, 0].reshape(-1, 1)
+                y = xy[:, 1].reshape(-1, 1)
+                z = np.zeros_like(x)
 
             xyz = np.hstack((x, y, z))
             poly = pv.lines_from_points(xyz, close=False)
