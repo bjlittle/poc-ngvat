@@ -121,7 +121,7 @@ def add_text(p, depth=0.1, opacity=1.0, color="tan"):
     p.add_mesh(t, color=color, opacity=opacity)
     
         
-mesh = pv.read("data/test/synthetic/pdata_C12_synthetic.vtk")
+mesh = pv.read("synthetic/pdata_C12_synthetic.vtk")
 
 NP = 6 
 N = mesh.n_cells

@@ -6,7 +6,7 @@ resolution = "50m"
 blocks = coastline(resolution=resolution)
 print(f"Geometries: {len(blocks)}")
 
-mesh = pv.read("data/test/real/pdata_sst_t0.vtk")
+mesh = pv.read("real/pdata_sst_t0.vtk")
 
 p = pv.Plotter()
 for block in blocks:
